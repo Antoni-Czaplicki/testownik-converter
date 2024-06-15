@@ -5,12 +5,16 @@ questions = []
 question_set = set()
 index = 1
 
+true_false_strings = {
+    "prawda": True, "tak": True, "true": True,
+    "fałsz": False, "nie": False, "false": False
+}
+
 
 def process_question(file, path):
     template = file[0].strip()
     question = file[1].strip()
     answers = []
-    is_true_false = (template == "X01" or template == "X10")
     for s in range(2, len(file)):
         try:
             answers.append({
@@ -23,13 +27,10 @@ def process_question(file, path):
                 "answer": file[s].strip(),
                 "correct": False
             })
-    if is_true_false:
-        if template == "X01":
-            if answers[0]["correct"] or not answers[1]["correct"]:
-                is_true_false = False
-        elif template == "X10":
-            if not answers[0]["correct"] or answers[1]["correct"]:
-                is_true_false = False
+
+    is_true_false = (template == "X01" or template == "X10") and \
+                    true_false_strings.get(answers[0]["answer"].lower()) is not None and \
+                    true_false_strings.get(answers[1]["answer"].lower()) is not None
 
     return {
         "question": question,
