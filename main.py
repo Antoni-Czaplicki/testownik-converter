@@ -49,7 +49,7 @@ def read_file(path, encodings):
     return None
 
 
-for root, dirs, files in os.walk("q"):
+for root, dirs, files in os.walk("stary_format"):
     for file in files:
         if file.endswith(".txt"):
             lines = read_file(os.path.join(root, file), ["utf-8", "windows-1250"])
