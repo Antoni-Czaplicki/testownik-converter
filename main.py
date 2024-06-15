@@ -1,0 +1,72 @@
+import json
+import os
+
+questions = []
+question_set = set()
+index = 1
+
+
+def process_question(file, path):
+    template = file[0].strip()
+    question = file[1].strip()
+    answers = []
+    is_true_false = (template == "X01" or template == "X10")
+    for s in range(2, len(file)):
+        try:
+            answers.append({
+                "answer": file[s].strip(),
+                "correct": False if template[s - 1] == "0" else True
+            })
+        except IndexError:
+            print(f"Error in file {path} at line {s}. Replacing the unknown value with False.")
+            answers.append({
+                "answer": file[s].strip(),
+                "correct": False
+            })
+    if is_true_false:
+        if template == "X01":
+            if answers[0]["correct"] or not answers[1]["correct"]:
+                is_true_false = False
+        elif template == "X10":
+            if not answers[0]["correct"] or answers[1]["correct"]:
+                is_true_false = False
+
+    return {
+        "question": question,
+        "answers": answers,
+        "multiple": not is_true_false
+    }
+
+
+def read_file(path, encodings):
+    for encoding in encodings:
+        try:
+            with open(path, "r", encoding=encoding) as f:
+                return f.read().strip().splitlines()
+        except UnicodeDecodeError:
+            continue
+    print(f"Error in file {path}. Skipping.")
+    return None
+
+
+for root, dirs, files in os.walk("q"):
+    for file in files:
+        if file.endswith(".txt"):
+            lines = read_file(os.path.join(root, file), ["utf-8", "windows-1250"])
+            if lines is None:
+                continue
+
+            question = process_question(lines, os.path.join(root, file))
+            question_str = json.dumps(question, ensure_ascii=False)
+
+            if question_str in question_set:
+                print(f"Duplicate question in file {os.path.join(root, file)}. Skipping.")
+                continue
+
+            question["id"] = index
+            questions.append(question)
+            question_set.add(question_str)
+            index += 1
+
+with open("questions.json", "w", encoding="utf-8") as f:
+    json.dump(questions, f, ensure_ascii=False, indent=4)
