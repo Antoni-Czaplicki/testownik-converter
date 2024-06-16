@@ -10,6 +10,16 @@ true_false_strings = {
     "fałsz": False, "nie": False, "false": False
 }
 
+properties = {
+    "title": None,
+    "description": None,
+    "author": None,
+    "report_url": None,
+    "report_email": None,
+    "source_url": None,
+    "version": 1
+}
+
 
 def process_question(file, path):
     template = file[0].strip()
@@ -69,5 +79,7 @@ for root, dirs, files in os.walk("stary_format"):
             question_set.add(question_str)
             index += 1
 
-with open("questions.json", "w", encoding="utf-8") as f:
-    json.dump(questions, f, ensure_ascii=False, indent=4)
+properties["questions"] = questions
+
+with open(properties.get("title", "baza").lower().replace(" ", "_") + ".json", "w", encoding="utf-8") as f:
+    json.dump(properties, f, ensure_ascii=False, indent=4)
