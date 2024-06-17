@@ -81,5 +81,5 @@ for root, dirs, files in os.walk("stary_format"):
 
 properties["questions"] = questions
 
-with open(properties.get("title", "baza").lower().replace(" ", "_") + ".json", "w", encoding="utf-8") as f:
+with open((properties.get("title") or "baza").lower().replace(" ", "_") + ".json", "w", encoding="utf-8") as f:
     json.dump(properties, f, ensure_ascii=False, indent=4)
