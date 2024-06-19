@@ -1,24 +1,19 @@
 import json
 import os
 
-questions = []
-question_set = set()
-index = 1
-
 true_false_strings = {
     "prawda": True, "tak": True, "true": True,
     "fałsz": False, "nie": False, "false": False
 }
 
-properties = {
-    "title": None,
-    "description": None,
-    "author": None,
-    "report_url": None,
-    "report_email": None,
-    "source_url": None,
-    "version": 1
-}
+SOURCE_JSON = "fraczkownik.json"
+
+source = json.load(open(SOURCE_JSON, "r", encoding="utf-8"))
+
+question_set = set([json.dumps({"question": q["question"], "answers": sorted(q["answers"], key=lambda x: x["answer"])},
+                               ensure_ascii=False).strip().lower() for q in source["questions"]])
+
+index = source["questions"][-1]["id"] + 1
 
 
 def process_question(file, path):
@@ -69,18 +64,18 @@ for root, dirs, files in os.walk("stary_format"):
                 continue
 
             question = process_question(lines, os.path.join(root, file))
-            question_str = json.dumps(question, ensure_ascii=False)
+            question_str = json.dumps(
+                {"question": question["question"], "answers": sorted(question["answers"], key=lambda x: x["answer"])},
+                ensure_ascii=False).strip().lower()
 
             if question_str in question_set:
                 print(f"Duplicate question in file {os.path.join(root, file)}. Skipping.")
                 continue
 
             question["id"] = index
-            questions.append(question)
+            source["questions"].append(question)
             question_set.add(question_str)
             index += 1
 
-properties["questions"] = questions
-
-with open((properties.get("title") or "baza").lower().replace(" ", "_") + ".json", "w", encoding="utf-8") as f:
-    json.dump(properties, f, ensure_ascii=False, indent=4)
+with open(source.get("title", "baza").lower().replace(" ", "_") + "_output.json", "w", encoding="utf-8") as f:
+    json.dump(source, f, ensure_ascii=False, indent=4)
