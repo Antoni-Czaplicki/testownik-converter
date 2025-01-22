@@ -6,7 +6,7 @@ true_false_strings = {
     "fałsz": False, "nie": False, "false": False
 }
 
-SOURCE_JSON = "fraczkownik.json"
+SOURCE_JSON = "test.json"
 
 source = json.load(open(SOURCE_JSON, "r", encoding="utf-8"))
 
